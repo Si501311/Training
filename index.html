@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>卢新，生日快乐！（节日版）</title>
 
   <style>
@@ -20,16 +20,25 @@
     }
 
     *{ box-sizing: border-box; }
+
+    /* ✅ iPhone-friendly scrolling + safe-area padding */
+    html, body { height: 100%; }
     body{
       margin:0;
       min-height:100vh;
       display:flex;
-      align-items:center;
       justify-content:center;
+      align-items:flex-start;           /* ✅ allow content to extend vertically */
       background: radial-gradient(1200px circle at 50% 15%, #141a35 0%, var(--bg) 55%, #000 100%);
       color:#fff;
       font-family: "PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-      overflow:hidden;
+
+      overflow-x: hidden;              /* ✅ keep effects contained */
+      overflow-y: auto;                /* ✅ allow scrolling */
+      -webkit-overflow-scrolling: touch;
+
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     /* floating glow blobs */
@@ -74,7 +83,15 @@
       100%{ transform: translateY(-130vh) translateX(-10px) rotate(-2deg); }
     }
 
-    .wrap{ text-align:center; padding: 32px 18px 40px; max-width: 980px; width: min(980px, 92vw); position: relative; z-index: 3; }
+    .wrap{
+      text-align:center;
+      padding: 32px 18px 64px; /* ✅ extra bottom padding so bike is reachable */
+      max-width: 980px;
+      width: min(980px, 92vw);
+      position: relative;
+      z-index: 3;
+      margin: 0 auto;
+    }
 
     .holly{
       display:inline-flex; align-items:center; gap:8px;
@@ -194,9 +211,10 @@
       box-shadow: 0 0 16px rgba(255,255,255,0.25);
     }
 
+    /* ✅ Responsive wheel sizing for iPhone */
     .wheel{
-      width: 320px;
-      height: 320px;
+      width: min(320px, 86vw);
+      height: min(320px, 86vw);
       border-radius: 50%;
       border: 10px solid rgba(255,255,255,0.18);
       box-shadow: 0 20px 70px rgba(0,0,0,0.55), inset 0 0 30px rgba(255,255,255,0.06);
@@ -206,8 +224,8 @@
       transform: rotate(0deg);
       transition: transform 4.6s cubic-bezier(.12,.72,.12,1);
       overflow: hidden;
-      /* We'll define the wheel colors in JS-friendly order:
-         0-60: Green, 60-120: Blue, 120-180: Red, 180-240: Cyan, 240-300: Pink, 300-360: Gold */
+
+      /* Wheel colors (6 slices): Green, Blue, Red(Bike), Cyan, Pink, Gold */
       background: conic-gradient(
         rgba(45,255,122,0.95) 0deg 60deg,
         rgba(122,168,255,0.95) 60deg 120deg,
@@ -216,6 +234,9 @@
         rgba(255,43,214,0.90) 240deg 300deg,
         rgba(255,216,107,0.90) 300deg 360deg
       );
+
+      /* ✅ label radius scales with wheel size */
+      --labelR: calc(min(320px, 86vw) * 0.31);
     }
 
     /* ✅ Labels centered in each triangle */
@@ -235,14 +256,13 @@
       pointer-events: none;
     }
 
-    /* Center radius for label placement (tweak if needed) */
-    /* Each label placed at slice center angles: 30, 90, 150, 210, 270, 330 */
-    .l1{ transform: translate(-50%, -50%) rotate(30deg)  translateX(98px) rotate(-30deg); }
-    .l2{ transform: translate(-50%, -50%) rotate(90deg)  translateX(98px) rotate(-90deg); }
-    .l3{ transform: translate(-50%, -50%) rotate(150deg) translateX(98px) rotate(-150deg); } /* <-- RED slice center */
-    .l4{ transform: translate(-50%, -50%) rotate(210deg) translateX(98px) rotate(-210deg); }
-    .l5{ transform: translate(-50%, -50%) rotate(270deg) translateX(98px) rotate(-270deg); }
-    .l6{ transform: translate(-50%, -50%) rotate(330deg) translateX(98px) rotate(-330deg); }
+    /* Slice center angles: 30, 90, 150 (RED bike), 210, 270, 330 */
+    .l1{ transform: translate(-50%, -50%) rotate(30deg)  translateX(var(--labelR)) rotate(-30deg); }
+    .l2{ transform: translate(-50%, -50%) rotate(90deg)  translateX(var(--labelR)) rotate(-90deg); }
+    .l3{ transform: translate(-50%, -50%) rotate(150deg) translateX(var(--labelR)) rotate(-150deg); } /* RED */
+    .l4{ transform: translate(-50%, -50%) rotate(210deg) translateX(var(--labelR)) rotate(-210deg); }
+    .l5{ transform: translate(-50%, -50%) rotate(270deg) translateX(var(--labelR)) rotate(-270deg); }
+    .l6{ transform: translate(-50%, -50%) rotate(330deg) translateX(var(--labelR)) rotate(-330deg); }
 
     .hub{
       position:absolute;
@@ -259,6 +279,12 @@
       letter-spacing:.06em;
       text-transform: uppercase;
       pointer-events:none;
+    }
+
+    /* Small screens: slightly smaller hub so labels have room */
+    @media (max-width: 420px){
+      .hub{ width: 82px; height: 82px; }
+      .wheel .label{ font-size: 16px; width: 130px; }
     }
 
     .controls{ display:flex; gap:10px; justify-content:center; margin-top: 10px; flex-wrap: wrap; }
@@ -285,6 +311,7 @@
       transform: translateY(10px) scale(0.98);
       transition: opacity .55s ease, transform .55s ease;
       width: 100%;
+      scroll-margin-top: 90px; /* ✅ when we auto-scroll, don't hide behind top UI */
     }
     #bikeCard.revealed{
       opacity: 1;
@@ -346,6 +373,13 @@
     <i style="left:4%;  background:var(--xmasGreen); animation-duration:7.4s; animation-delay:-1.2s;"></i>
     <i style="left:9%;  background:var(--xmasRed);   animation-duration:8.2s; animation-delay:-3.5s;"></i>
     <i style="left:14%; background:var(--xmasGold);  animation-duration:7.9s; animation-delay:-2.4s;"></i>
+    <i style="left:18%; background:#7aa8ff;         animation-duration:8.6s; animation-delay:-4.6s;"></i>
+    <i style="left:22%; background:var(--neon2);    animation-duration:7.1s; animation-delay:-1.8s;"></i>
+    <i style="left:27%; background:var(--neon1);    animation-duration:8.9s; animation-delay:-5.1s;"></i>
+    <i style="left:31%; background:var(--xmasRed);  animation-duration:7.6s; animation-delay:-2.7s;"></i>
+    <i style="left:36%; background:var(--xmasGreen);animation-duration:9.1s; animation-delay:-3.9s;"></i>
+    <i style="left:40%; background:var(--neon3);    animation-duration:7.3s; animation-delay:-1.1s;"></i>
+    <i style="left:44%; background:var(--xmasGold); animation-duration:8.4s; animation-delay:-4.0s;"></i>
   </div>
 
   <!-- Moving balloons -->
@@ -376,7 +410,7 @@
 
           <!-- Click the wheel to spin -->
           <div id="wheel" class="wheel" role="button" aria-label="点击转盘开始抽奖" tabindex="0">
-            <!-- We map BIKE to the RED triangle (center angle 150deg). -->
+            <!-- Bike is assigned to the RED slice (center angle 150deg). -->
             <div class="label l1">🍭 糖果</div>         <!-- Green -->
             <div class="label l2">🧸 玩具</div>         <!-- Blue -->
             <div class="label l3">🚲 自行车</div>       <!-- Red (Bike) -->
@@ -409,6 +443,7 @@
   <script>
     // Keep code comments in English (as requested).
     // Bike is assigned to the RED slice (120-180deg). We make the pointer land on the slice CENTER (150deg) every time.
+    // iPhone fix: enable vertical scrolling + auto-scroll to the bike after reveal.
 
     const wheel = document.getElementById('wheel');
     const spinBtn = document.getElementById('spinBtn');
@@ -444,7 +479,13 @@
 
     function revealBike(){
       bikeCard.hidden = false;
-      requestAnimationFrame(() => bikeCard.classList.add('revealed'));
+
+      requestAnimationFrame(() => {
+        bikeCard.classList.add('revealed');
+
+        // ✅ iPhone: auto-scroll to the bike section so the user always sees it
+        bikeCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     }
 
     function spin(){
@@ -477,6 +518,9 @@
       result.textContent = "";
       hideBike();
       setDisabled(false);
+
+      // Optional: scroll back to the top of the page nicely on mobile
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     wheel.addEventListener('click', spin);
